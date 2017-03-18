@@ -12,7 +12,7 @@ function addChanges(obj, diff) {
 
         if(diffLine) {
             const fileName = diffLine[1];
-            key = fileName.substr(2, Math.floor((fileName.length - 4) / 2));
+            key = process.cwd() + '/' + fileName.substr(2, Math.floor((fileName.length - 4) / 2));
         } else if(line.match(/^@@/)) {
             const summary = line.match(/\+([0-9]+)(,([0-9]+))?/);
             const firstLine = parseInt(summary[1], 10);
@@ -40,6 +40,7 @@ module.exports = {
     untracked: function() {
         return child_process.execSync('git ls-files --others --exclude-standard', execOptions)
             .split('\n')
-            .filter(Boolean);
+            .filter(Boolean)
+            .map((p) => process.cwd() + '/' + p);
     },
 }

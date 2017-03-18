@@ -1,10 +1,13 @@
+const path = require('path');
 const git = require('./git.js');
 
 const consoleFunctions = ['log'];
 const prefix = 'jeffrey';
 
-const untrackedFiles = git.untracked();
-const files = git.staged(git.unstaged({}));
+let untrackedFiles = git.untracked();
+let files = git.staged(git.unstaged({}));
+let lastDiff = 0;
+let lastUntracked = 0;
 
 module.exports = function ({ types }) {
   return {
@@ -18,15 +21,32 @@ module.exports = function ({ types }) {
         const firstLine = path.node.loc.start.line;
         const lastLine = path.node.loc.end.line;
 
-        const file = files[filename];
+        const now = new Date();
+        if (now - lastUntracked > 300) {
+          untrackedFiles = git.untracked();
+          lastUntracked = now;
+        }
 
         const inUntracked = untrackedFiles.indexOf(filename) >= 0;
-        const prefixIt = inUntracked || (file && file.reduce((isChanged, change) => {
-            return isChanged ||
-              (firstLine >= change.firstLine && firstLine <= change.lastLine) ||
-              (lastLine >= change.firstLine && lastLine <= change.lastLine) ||
-              (firstLine < change.firstLine && lastLine > change.lastLine);
-        }, false));
+        let prefixIt = false;
+        if(inUntracked) {
+          prefixIt = true;
+        } else {
+          if (now - lastDiff > 300) {
+            files = git.staged(git.unstaged({}));
+            lastDiff = now;
+          }
+
+          const file = files[filename];
+
+          prefixIt = file && file.reduce((isChanged, change) => {
+              return isChanged ||
+                (firstLine >= change.firstLine && firstLine <= change.lastLine) ||
+                (lastLine >= change.firstLine && lastLine <= change.lastLine) ||
+                (firstLine < change.firstLine && lastLine > change.lastLine);
+          }, false);
+        }
+
 
         if(prefixIt) {
           const node = types.stringLiteral(prefix);
