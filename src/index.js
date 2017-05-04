@@ -2,7 +2,7 @@ const path = require('path');
 const git = require('./git.js');
 
 const consoleFunctions = ['log'];
-const prefix = 'jeffrey';
+const prefix = 'prefix';
 
 let untrackedFiles = git.untracked();
 let files = git.staged(git.unstaged({}));
@@ -12,7 +12,7 @@ let lastUntracked = 0;
 module.exports = function ({ types }) {
   return {
     visitor: {
-      CallExpression(path, parent) {
+      CallExpression(path, state) {
         if (!path.node.callee.object || !path.node.callee.property) return;
         if (path.node.callee.object.name !== 'console') return;
         if (consoleFunctions.indexOf(path.node.callee.property.name) < 0) return;
@@ -38,7 +38,6 @@ module.exports = function ({ types }) {
           }
 
           const file = files[filename];
-
           prefixIt = file && file.reduce((isChanged, change) => {
               return isChanged ||
                 (firstLine >= change.firstLine && firstLine <= change.lastLine) ||
@@ -49,7 +48,7 @@ module.exports = function ({ types }) {
 
 
         if(prefixIt) {
-          const node = types.stringLiteral(prefix);
+          const node = types.stringLiteral(state.opts.prefix || prefix);
           path.node.arguments.unshift(node);
         }
       }
