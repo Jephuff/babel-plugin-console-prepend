@@ -1,9 +1,18 @@
 {
   "dependencies": {},
   "name": "babel-plugin-console-prepend",
+  "description": "A simple transform that prepends uncommited console.log calls with a string",
   "version": "0.0.1",
   "main": "src/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "Jephuff/babel-plugin-console-prepend"
+  },
+  "keywords": [
+    "babel"
+  ],
+  "author": "Jeffrey Burt",
   "scripts": {
     "test": "jest"
   },
