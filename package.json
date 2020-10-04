@@ -21,6 +21,6 @@
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
-    "jest": "^19.0.2"
+    "jest": "^26.4.2"
   }
 }
